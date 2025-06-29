@@ -1,26 +1,36 @@
 import streamlit as st
 import requests
 
-API_URL = "https://tt3-backend-1.onrender.com/"  # Replace with your FastAPI URL
+API_URL = "https://tt3-backend-1.onrender.com"  # Replace with your deployed FastAPI URL
 
-st.title("📅 AI Appointment Booking Assistant")
+st.title("📅 AI Calendar Booking Assistant")
 
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-user_input = st.chat_input("Ask me to book an appointment...")
+# Display chat history
+for msg in st.session_state.messages:
+    if msg["role"] == "user":
+        st.chat_message("user").write(msg["content"])
+    else:
+        st.chat_message("assistant").write(msg["content"])
+
+# Chat input
+user_input = st.chat_input("Ask me to book your event (e.g. Book lunch with Raj tomorrow at 2 PM)...")
 
 if user_input:
-    st.session_state.chat_history.append(("user", user_input))
+    st.session_state.messages.append({"role": "user", "content": user_input})
+
+    # Send to backend
     try:
         resp = requests.post(API_URL, json={"message": user_input})
-        reply = resp.json()["reply"]
+        if resp.status_code == 200:
+            reply = resp.json().get("reply", "❌ No reply from backend.")
+        else:
+            reply = f"❌ Error: {resp.status_code} {resp.reason}"
     except Exception as e:
-        reply = f"Error contacting backend: {e}"
-    st.session_state.chat_history.append(("ai", reply))
+        reply = f"❌ Error contacting backend: {str(e)}"
 
-for role, msg in st.session_state.chat_history:
-    if role == "user":
-        st.chat_message("assistant").markdown(msg, unsafe_allow_html=True)
-    else:
-        st.chat_message("assistant").write(msg)
+    st.session_state.messages.append({"role": "assistant", "content": reply})
+
+    st.chat_message("assistant").write(reply)
