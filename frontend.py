@@ -21,6 +21,6 @@ if user_input:
 
 for role, msg in st.session_state.chat_history:
     if role == "user":
-        st.chat_message("user").write(msg)
+        st.chat_message("assistant").markdown(msg, unsafe_allow_html=True)
     else:
         st.chat_message("assistant").write(msg)
