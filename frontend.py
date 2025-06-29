@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-API_URL = "https://tt3-backend-1.onrender.com/chat"  # Replace with your FastAPI URL
+API_URL = "https://tt3-backend-1.onrender.com/"  # Replace with your FastAPI URL
 
 st.title("📅 AI Appointment Booking Assistant")
 
